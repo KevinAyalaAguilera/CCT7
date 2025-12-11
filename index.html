@@ -3,52 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WebApp XLSX CASHBACK + Barcode</title>
+  <title>WebApp XLSX + QR</title>
+
+  <!-- xlsx para leer archivos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <!-- qrcodejs (genera QR como <img> o <canvas>) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; }
     .hidden-barcode {
       background-color: black;
       color: black;
       transition: background-color 0.2s, color 0.2s;
+      padding: 6px;
     }
     .hidden-barcode:hover {
       background-color: white;
       color: black;
     }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-    #filterInput {
-      width: 300px;
-      padding: 8px;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-    .barcode {
-      font-family: 'Libre Barcode 128', cursive;
-      font-size: 40px;
-      letter-spacing: 3px;
-    }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: middle; }
+    th { background-color: #f0f0f0; }
+    #filterInput { width: 300px; padding: 8px; margin-bottom: 10px; font-size: 14px; }
+
+    /* tamaño del QR dentro de la celda */
+    .qr-container { width: 96px; height: 96px; display: inline-block; }
+    /* soporte para que canvas/img ocupe el contenedor */
+    .qr-container canvas, .qr-container img { width: 100% !important; height: 100% !important; display: block; }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h2>Subir archivo XLSX de CASHBACK</h2>
+  <h2>Subir archivo XLSX</h2>
   <input type="file" id="fileInput" accept=".xlsx" />
 
   <h3>Filtro</h3>
@@ -105,7 +91,7 @@
       });
 
       const th = document.createElement('th');
-      th.textContent = 'Código de Barras';
+      th.textContent = 'QR (COUPONCODE)';
       headerRow.appendChild(th);
 
       thead.appendChild(headerRow);
@@ -113,7 +99,7 @@
 
       const tbody = document.createElement('tbody');
 
-      data.forEach(row => {
+      data.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
         columns.forEach(col => {
           const td = document.createElement('td');
@@ -123,17 +109,34 @@
 
         const barcodeTd = document.createElement('td');
         barcodeTd.classList.add('hidden-barcode');
-        const code = row['COUPONCODE'] || '';
-        barcodeTd.innerHTML = `<svg class="ean13"></svg>`;
-        JsBarcode(barcodeTd.querySelector("svg"), code, {
-          format: "ean13",
-          displayValue: true,
-          fontSize: 16,
-          width: 2,
-          height: 70
-        });
 
+        // contenedor donde generaremos el QR
+        const qrContainer = document.createElement('div');
+        qrContainer.classList.add('qr-container');
 
+        const code = (row['COUPONCODE'] || '').toString().trim();
+
+        if (code) {
+          // asegurarnos de limpiar cualquier contenido previo (por si)
+          qrContainer.innerHTML = '';
+          // generar QR; ajusta width/height si quieres otro tamaño
+          try {
+            new QRCode(qrContainer, {
+              text: code,
+              width: 96,
+              height: 96,
+              correctLevel: QRCode.CorrectLevel.H
+            });
+          } catch (err) {
+            // en caso de error (valor muy largo, caracteres raros...), mostrar texto
+            qrContainer.textContent = 'Error QR';
+            console.error('Error generando QR para:', code, err);
+          }
+        } else {
+          qrContainer.textContent = '-';
+        }
+
+        barcodeTd.appendChild(qrContainer);
         tr.appendChild(barcodeTd);
 
         tbody.appendChild(tr);
