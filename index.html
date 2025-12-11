@@ -116,31 +116,7 @@
         barcode.classList.add("barcode-svg");
 
         const code = (row['COUPONCODE'] || '').toString().trim();
-        
-
-
-
-        
-
-        if (code) {
-          // asegurarnos de limpiar cualquier contenido previo (por si)
-          qrContainer.innerHTML = '';
-          // generar QR; ajusta width/height si quieres otro tamaño
-          try {
-            new QRCode(qrContainer, {
-              text: code,
-              width: 96,
-              height: 96,
-              correctLevel: QRCode.CorrectLevel.H
-            });
-          } catch (err) {
-            // en caso de error (valor muy largo, caracteres raros...), mostrar texto
-            qrContainer.textContent = 'Error QR';
-            console.error('Error generando QR para:', code, err);
-          }
-        } else {
-          qrContainer.textContent = '-';
-        }
+      
 
         JsBarcode(barcode, code, {
           format: "CODE128C",   // Genera exactamente el formato como tu imagen
