@@ -114,20 +114,13 @@
 
         const barcode = document.createElement("svg");
         barcode.classList.add("barcode-svg");
-        
-        JsBarcode(barcode, code, {
-          format: "CODE128C",   // Genera exactamente el formato como tu imagen
-          lineColor: "#000",
-          width: 2,             // Ajustable
-          height: 60,           // Ajustable
-          displayValue: true,   // Código numérico debajo
-          fontSize: 16,
-        });
-        barcodeTd.appendChild(barcode);
-
-
 
         const code = (row['COUPONCODE'] || '').toString().trim();
+        
+
+
+
+        
 
         if (code) {
           // asegurarnos de limpiar cualquier contenido previo (por si)
@@ -148,6 +141,16 @@
         } else {
           qrContainer.textContent = '-';
         }
+
+        JsBarcode(barcode, code, {
+          format: "CODE128C",   // Genera exactamente el formato como tu imagen
+          lineColor: "#000",
+          width: 2,             // Ajustable
+          height: 60,           // Ajustable
+          displayValue: true,   // Código numérico debajo
+          fontSize: 16,
+        });
+        barcodeTd.appendChild(barcode);
 
         barcodeTd.appendChild(qrContainer);
         tr.appendChild(barcodeTd);
