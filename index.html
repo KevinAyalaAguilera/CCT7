@@ -8,7 +8,8 @@
   <!-- xlsx para leer archivos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <!-- qrcodejs (genera QR como <img> o <canvas>) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
 
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
@@ -26,6 +27,10 @@
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: middle; }
     th { background-color: #f0f0f0; }
     #filterInput { width: 300px; padding: 8px; margin-bottom: 10px; font-size: 14px; }
+    .barcode-svg {
+      width: 100%;
+      max-width: 300px;
+    }
 
     /* tamaño del QR dentro de la celda */
     .qr-container { width: 96px; height: 96px; display: inline-block; }
@@ -107,12 +112,20 @@
           tr.appendChild(td);
         });
 
-        const barcodeTd = document.createElement('td');
-        barcodeTd.classList.add('hidden-barcode');
+        const barcode = document.createElement("svg");
+        barcode.classList.add("barcode-svg");
+        
+        JsBarcode(barcode, code, {
+          format: "CODE128C",   // Genera exactamente el formato como tu imagen
+          lineColor: "#000",
+          width: 2,             // Ajustable
+          height: 60,           // Ajustable
+          displayValue: true,   // Código numérico debajo
+          fontSize: 16,
+        });
+        barcodeTd.appendChild(barcode);
 
-        // contenedor donde generaremos el QR
-        const qrContainer = document.createElement('div');
-        qrContainer.classList.add('qr-container');
+
 
         const code = (row['COUPONCODE'] || '').toString().trim();
 
